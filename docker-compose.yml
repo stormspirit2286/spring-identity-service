@@ -1,0 +1,23 @@
+version: '3'
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/identity?useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+
+  db:
+    image: mysql:8 # Thay đổi ở đây
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: identity
+    volumes:
+      - db-data:/var/lib/mysql
+
+volumes:
+  db-data:

@@ -4,6 +4,7 @@ import com.duynguyen.identityservice.dto.request.UserCreationRequest;
 import com.duynguyen.identityservice.dto.request.UserUpdateRequest;
 import com.duynguyen.identityservice.dto.response.UserResponse;
 import com.duynguyen.identityservice.entity.User;
+import com.duynguyen.identityservice.enums.Role;
 import com.duynguyen.identityservice.exception.AppException;
 import com.duynguyen.identityservice.exception.ErrorCode;
 import com.duynguyen.identityservice.mapper.UserMapper;
@@ -16,6 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,18 +28,22 @@ import java.util.Optional;
 public class UserService {
     UserMapper userMapper;
     UserRepository userRepository;
+    PasswordEncoder passwordEncoder;
 
 
     public UserResponse createUser(UserCreationRequest request) {
-        Optional<User> user = userRepository.findByUsername(request.getUsername());
-        if (user.isPresent()) {
+        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
 
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
-        request.setPassword(passwordEncoder.encode(request.getPassword()));
+        User user = userMapper.toUser(request);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        HashSet<String> roles = new HashSet<>();
+        roles.add(Role.USER.name());
+        user.setRoles(roles);
+        log.info("Created user: {}", user.getRoles());
 
-        User userCreated = userRepository.save(userMapper.toUser(request));
+        User userCreated = userRepository.save(user);
         UserResponse userResponse = userMapper.toUserResponse(userCreated);
         log.info("User created " + userCreated.getId());
         return userResponse;

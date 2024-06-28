@@ -5,6 +5,8 @@ import lombok.experimental.FieldDefaults;
 
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -17,4 +19,5 @@ public class UserCreationRequest {
     String firstName;
     String lastName;
     LocalDate dob;
+    Set<String> roles = new HashSet<>();
 }
