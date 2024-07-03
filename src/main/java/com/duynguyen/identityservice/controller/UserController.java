@@ -59,4 +59,10 @@ public class UserController {
                 .result(userService.deleteUser(userId))
                 .build();
     }
+
+    @GetMapping("/me")
+    public ApiResponse<UserResponse> getCurrentUser() {
+        log.info("Current user: {}", SecurityContextHolder.getContext().getAuthentication().getName());
+        return ApiResponse.<UserResponse>builder().result(userService.getMyInfo()).build();
+    }
 }

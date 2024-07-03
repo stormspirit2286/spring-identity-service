@@ -13,6 +13,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -49,6 +51,7 @@ public class UserService {
         return userResponse;
     }
 
+    @PreAuthorize("hasRole('ADMIN')") // kiem tra truoc luc goi ham nay, neu co role là ADMIN, moi cho phep goi
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
     }
@@ -70,5 +73,13 @@ public class UserService {
         userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         userRepository.deleteById(userId);
         return "Deleted User";
+    }
+
+    public UserResponse getMyInfo() {
+        var user = SecurityContextHolder.getContext().getAuthentication();
+        String name = user.getName();
+
+        User userFounded = userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        return userMapper.toUserResponse(userFounded);
     }
 }

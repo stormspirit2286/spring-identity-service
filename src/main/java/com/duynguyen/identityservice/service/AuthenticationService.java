@@ -87,7 +87,7 @@ public class AuthenticationService {
                 .subject(user.getUsername())
                 .issuer("NguyenVanDuy")
                 .issueTime(new Date())
-                .expirationTime(new Date(Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()))
+                .expirationTime(new Date(Instant.now().plus(30, ChronoUnit.SECONDS).toEpochMilli()))
                 .claim("scope", buildScope(user))
                 .build();
         // "ROLE_ADMIN" => "ADMIN"
